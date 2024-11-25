@@ -1,0 +1,71 @@
+# Import necessary libraries
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import confusion_matrix, accuracy_score
+
+# Step 1: Load the data
+data = {
+    "Gender": ["male", "male", "male", "male", "female", "female", "female", "female"],
+    "Height": [6.00, 5.92, 5.58, 5.92, 5.00, 5.50, 5.42, 5.75],
+    "Weight": [180, 190, 170, 165, 100, 150, 130, 150],
+    "Foot_Size": [12, 11, 12, 10, 6, 8, 7, 9],
+}
+
+df = pd.DataFrame(data)
+
+# Step 2: Preprocess the data
+# Encode 'Gender' column to numerical values
+label_encoder = LabelEncoder()
+df['Gender'] = label_encoder.fit_transform(df['Gender'])  # male -> 1, female -> 0
+
+# Split features and target
+X = df[['Height', 'Weight', 'Foot_Size']]  # Features
+y = df['Gender']  # Target
+
+# Step 3: Train the Decision Tree model
+model = DecisionTreeClassifier()
+model.fit(X, y)
+
+# Step 4: Accept new entry and predict
+print("\nEnter the details for prediction:")
+height = float(input("Height: "))
+weight = int(input("Weight: "))
+foot_size = int(input("Foot Size: "))
+
+new_entry = [[height, weight, foot_size]]
+
+# Predict the gender for the new entry
+prediction = model.predict(new_entry)
+predicted_gender = label_encoder.inverse_transform(prediction)  # Convert back to original label
+
+print(f"The predicted gender for the new entry is: {predicted_gender[0]}")
+
+# Step 5: Add the new entry to the dataset
+new_entry_with_label = {
+    "Gender": predicted_gender[0], 
+    "Height": height, 
+    "Weight": weight, 
+    "Foot_Size": foot_size
+}
+df = df.append(new_entry_with_label, ignore_index=True)
+
+# Re-encode the 'Gender' column after adding the new entry
+df['Gender'] = label_encoder.fit_transform(df['Gender'])
+
+print("\nUpdated Dataset:")
+print(df)
+
+# Step 6: Retrain the model with the updated dataset
+X = df[['Height', 'Weight', 'Foot_Size']]  # Features
+y = df['Gender']  # Target
+model.fit(X, y)
+
+# Evaluate the updated model
+y_pred = model.predict(X)
+conf_matrix = confusion_matrix(y, y_pred)
+accuracy = accuracy_score(y, y_pred)
+
+print("\nConfusion Matrix after retraining:")
+print(conf_matrix)
+print(f"Accuracy Score after retraining: {accuracy:.2f}")
