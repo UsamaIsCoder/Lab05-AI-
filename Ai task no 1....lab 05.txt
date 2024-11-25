@@ -1,0 +1,55 @@
+# Import necessary libraries
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import confusion_matrix, accuracy_score
+
+# Step 1: Load the data
+data = {
+    "Gender": ["male", "male", "male", "male", "female", "female", "female", "female"],
+    "Height": [6.00, 5.92, 5.58, 5.92, 5.00, 5.50, 5.42, 5.75],
+    "Weight": [180, 190, 170, 165, 100, 150, 130, 150],
+    "Foot_Size": [12, 11, 12, 10, 6, 8, 7, 9],
+}
+
+df = pd.DataFrame(data)
+
+# Step 2: Preprocess the data
+# Encode 'Gender' column to numerical values
+label_encoder = LabelEncoder()
+df['Gender'] = label_encoder.fit_transform(df['Gender'])  # male -> 1, female -> 0
+
+# Split features and target
+X = df[['Height', 'Weight', 'Foot_Size']]  # Features
+y = df['Gender']  # Target
+
+# Step 3: Train-Test Split (using all data for simplicity here, but split in practice)
+# Train the Decision Tree model
+model = DecisionTreeClassifier()
+model.fit(X, y)
+
+# Step 4: Evaluate the model
+# Generate predictions for the training data
+y_pred = model.predict(X)
+
+# Calculate confusion matrix and accuracy score
+conf_matrix = confusion_matrix(y, y_pred)
+accuracy = accuracy_score(y, y_pred)
+
+print("Confusion Matrix:")
+print(conf_matrix)
+print(f"Accuracy Score: {accuracy:.2f}")
+
+# Step 5: Predict a new entry
+print("\nEnter the details for prediction:")
+height = float(input("Height: "))
+weight = int(input("Weight: "))
+foot_size = int(input("Foot Size: "))
+
+new_entry = [[height, weight, foot_size]]
+
+# Make the prediction
+prediction = model.predict(new_entry)
+predicted_gender = label_encoder.inverse_transform(prediction)  # Convert back to original label
+
+print(f"The predicted gender is: {predicted_gender[0]}")
